@@ -9,23 +9,28 @@ import torch.optim as optim
 import JackFramework as jf
 import UserModelImplementation.user_define as user_def
 
+from .model import DPFNNModel, DPFNNBlock
 
-class YourModel(jf.UserTemplate.ModelHandlerTemplate):
+
+class DPFNN(jf.UserTemplate.ModelHandlerTemplate):
     """docstring for DeepLabV3Plus"""
 
     def __init__(self, args: object) -> object:
         super().__init__(args)
         self.__args = args
+        self.__criterion = nn.CrossEntropyLoss()
 
     def get_model(self) -> list:
         args = self.__args
+        model = DPFNNModel(DPFNNBlock, [2, 2, 2])
         # return model
-        return []
+        return [model]
 
     def optimizer(self, model: list, lr: float) -> list:
         args = self.__args
         # return opt and sch
-        return [], []
+        optimizer = torch.optim.Adam(model[0].parameters(), lr=lr)
+        return [optimizer], [None]
 
     def lr_scheduler(self, sch: object, ave_loss: list, sch_id: int) -> None:
         # how to do schenduler
@@ -34,14 +39,19 @@ class YourModel(jf.UserTemplate.ModelHandlerTemplate):
     def inference(self, model: list, input_data: list, model_id: int) -> list:
         args = self.__args
         # return output
-        return []
+        outputs = model(input_data[0])
+        return [outputs]
 
     def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
         # return acc
         args = self.__args
-        return []
+        total = label_data[0].size(0)
+        _, predicted = torch.max(output_data[0], 1)
+        correct = (predicted == label_data[0]).sum()
+        return [correct / total]
 
     def loss(self, output_data: list, label_data: list, model_id: int) -> list:
         # return loss
         args = self.__args
-        return []
+        loss = self.__criterion(output_data[0], label_data[0])
+        return [loss]

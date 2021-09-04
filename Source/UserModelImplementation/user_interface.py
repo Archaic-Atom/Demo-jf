@@ -8,11 +8,11 @@ import UserModelImplementation.user_define as user_def
 from UserModelImplementation.Models.Debug.inference import Debug
 from UserModelImplementation.Models.PSMNet.inference import PsmNet
 from UserModelImplementation.Models.GwcNet.inference import GwcNet
-from UserModelImplementation.Models.your_model.inference import YourModel
+from UserModelImplementation.Models.DPFNN.inference import DPFNN
 
 # dataloader
 from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
-from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
+from UserModelImplementation.Dataloaders.mnist_dataloader import MNISTDataloader
 
 
 class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
@@ -39,10 +39,11 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
                 model = Debug(args)
                 dataloader = StereoDataloader(args)
                 break
-            if case('YourModel'):
-                jf.log.warning("Enter the YourModel model!")
-                model = YourModel(args)
-                dataloader = YourDataloader(args)
+            if case('DPFNN'):
+                jf.log.warning("Enter the DPFNN model!")
+                model = DPFNN(args)
+                dataloader = MNISTDataloader(args)
+                break
             if case():
                 model = None
                 dataloader = None
