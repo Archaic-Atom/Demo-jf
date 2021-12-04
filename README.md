@@ -34,239 +34,30 @@ $ cd JackFramework/
 $ ./install.sh
 ```
 
-1. Get the Training list or Testing list （You need rewrite the code by your path, and my related demo code can be found in Source/Tools/genrate_**_traning_path.py）
+2. Run the program, like:
 ```
-$ ./GenPath.sh
-```
-Please check the path. The source code in Source/Tools.
-
-2. Implement the model's interface and dataloader's interface of JackFramework in Source/UserModelImplementation/Models/your_model/inference.py and Source/UserModelImplementation/Dataloaders/your_dataloader.py.
-
-The template of model is shown in follows:
-```python
-# -*- coding: utf-8 -*-
-import numpy as np
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-
-import JackFramework as jf
-import UserModelImplementation.user_define as user_def
-
-
-class YourModel(jf.UserTemplate.ModelHandlerTemplate):
-    """docstring for DeepLabV3Plus"""
-
-    def __init__(self, args: object) -> object:
-        super().__init__(args)
-        self.__args = args
-
-    def get_model(self) -> list:
-        args = self.__args
-        # return model
-        return []
-
-    def optimizer(self, model: list, lr: float) -> list:
-        args = self.__args
-        # return opt and sch
-        return [], []
-
-    def lr_scheduler(self, sch: object, ave_loss: list, sch_id: int) -> None:
-        # how to do schenduler
-        pass
-
-    def inference(self, model: list, input_data: list, model_id: int) -> list:
-        args = self.__args
-        # return output
-        return []
-
-    def accuary(self, output_data: list, label_data: list, model_id: int) -> list:
-        # return acc
-        args = self.__args
-        return []
-
-    def loss(self, output_data: list, label_data: list, model_id: int) -> list:
-        # return loss
-        args = self.__args
-        return []
-
+$ ./Scripts/start_train_mnist_conv_net.sh
 ```
 
-The template of Dataloader is shown in follows:
-```python
-# -*- coding: utf-8 -*-
-import torch
-import torch.nn.functional as F
-import pandas as pd
-import numpy as np
-import os
-import rasterio
-
-import JackFramework as jf
-import UserModelImplementation.user_define as user_def
-
-import time
-
-
-class YourDataloader(jf.UserTemplate.DataHandlerTemplate):
-    """docstring for DataHandlerTemplate"""
-
-    def __init__(self, args: object) -> object:
-        super().__init__(args)
-        self.__args = args
-        self.__result_str = jf.ResultStr()
-        self.__train_dataset = None
-        self.__val_dataset = None
-        self.__imgs_num = 0
-        self.__chips_num = 0
-        self.__start_time = 0
-
-    def get_train_dataset(self, path: str, is_training: bool = True) -> object:
-        args = self.__args
-        # return dataset
-
-    def get_val_dataset(self, path: str) -> object:
-        # return dataset
-        args = self.__args
-        # return dataset
-
-    def split_data(self, batch_data: tuple, is_training: bool) -> list:
-        self.__start_time = time.time()
-        if is_training:
-            # return input_data_list, label_data_list
-            return [], []
-            # return input_data, supplement
-        return [], []
-
-    def show_train_result(self, epoch: int, loss:
-                          list, acc: list,
-                          duration: float) -> None:
-        assert len(loss) == len(acc)  # same model number
-        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, True)
-        jf.log.info(info_str)
-
-    def show_val_result(self, epoch: int, loss:
-                        list, acc: list,
-                        duration: float) -> None:
-        assert len(loss) == len(acc)  # same model number
-        info_str = self.__result_str.training_result_str(epoch, loss[0], acc[0], duration, False)
-        jf.log.info(info_str)
-
-    def save_result(self, output_data: list, supplement: list,
-                    img_id: int, model_id: int) -> None:
-        assert self.__train_dataset is not None
-        args = self.__args
-
-    def show_intermediate_result(self, epoch: int,
-                                 loss: list, acc: list) -> str:
-        assert len(loss) == len(acc)  # same model number
-        return self.__result_str.training_intermediate_result(epoch, loss[0], acc[0])
-
+3. Kill the program, like:
 ```
-
-you must implement the related class for using JackFramework, the demo can be find in Source/UserModelImplementation/Models/Debug/inference.py or Source/UserModelImplementation/Dataloaders/stereo_matching.py. Or you can find the other demo in PSMNet or gwc-Net.
-
-Next, you need implement the interfance file Source/user_interface.py (you can add some parameters in user\_parser function of this file ), as shown in follows:
-```python
-# -*- coding: utf-8 -*-
-import JackFramework as jf
-import argparse
-
-import UserModelImplementation.user_define as user_def
-
-# model
-from UserModelImplementation.Models.Debug.inference import Debug
-from UserModelImplementation.Models.PSMNet.inference import PsmNet
-from UserModelImplementation.Models.GwcNet.inference import GwcNet
-from UserModelImplementation.Models.your_model.inference import YourModel
-
-# dataloader
-from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
-from UserModelImplementation.Dataloaders.your_dataloader import YourDataloader
-
-
-class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
-    """docstring for UserInterface"""
-
-    def __init__(self) -> object:
-        super().__init__()
-
-    def inference(self, args: object) -> object:
-        name = args.modelName
-        for case in jf.Switch(name):
-            if case('PsmNet'):
-                jf.log.info("Enter the PsmNet model")
-                model = PsmNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('GwcNet'):
-                jf.log.info("Enter the GwcNet model")
-                model = GwcNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('Debug'):
-                jf.log.warning("Enter the debug model!!!")
-                model = Debug(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('YourModel'):
-                jf.log.warning("Enter the YourModel model!")
-                model = YourModel(args)
-                dataloader = YourDataloader(args)
-            if case():
-                model = None
-                dataloader = None
-                jf.log.error("The model's name is error!!!")
-
-        return model, dataloader
-
-    def user_parser(self, parser: object) -> object:
-        parser.add_argument('--startDisp', type=int,
-                            default=user_def.START_DISP,
-                            help='start disparity')
-        parser.add_argument('--dispNum', default=user_def.DISP_NUM,
-                            help='disparity number')
-        parser.add_argument('--lr_scheduler', type=UserInterface.__str2bool,
-                            default=user_def.LR_SCHEDULER,
-                            help='use or not use lr scheduler')
-        return parser
-
-    @staticmethod
-    def __str2bool(arg: str) -> bool:
-        if arg.lower() in ('yes', 'true', 't', 'y', '1'):
-            return True
-        elif arg.lower() in ('no', 'false', 'f', 'n', '0'):
-            return False
-        else:
-            raise argparse.ArgumentTypeError('Boolean value expected.')
-
-```
-
-Finally, you need pass this object to JackFramework, as shown in follows:
-```python
-# -*coding: utf-8 -*-
-import JackFramework as jf
-from UserModelImplementation.user_interface import UserInterface
-
-
-def main()->None:
-    app = jf.Application(UserInterface(), "Stereo Matching Models")
-    app.start()
-
-
-# execute the main function
-if __name__ == "__main__":
-    main()
-
-```
-
-3. Run the program, like:
-```
-$ ./Scripts/start_debug_stereo_net.sh
+$ ./Scripts/kill_process.sh
 ```
 ---
+
+### Screenshot
+1. the code in terminal
+
+![image](./Example/runtime.png)
+
+2. the usage of GPUs
+
+![image](./Example/DDP.png)
+
+3. the tensorboard
+
+![image](./Example/tensorboard.png)
+
 ### File Structure
 ```
 .
@@ -301,22 +92,10 @@ $ ./Scripts/start_debug_stereo_net.sh
 │   ├──Pre-Train.sh
 │   └── ...
 ├── LICENSE
-├── requirements.txt
 └── README.md
 ```
+
 ---
 ### Update log
-#### 2021-05-29
-1. Add the depth for transformer;
-2. Fork the JackFramework to a new project;
-3. Remove the JackFramework from this project.
-
-#### 2021-04-08
-1. Add the stereo;
-2. Add transformer.
-
-#### 2021-01-13
-1. Fork a new prject (based on pythorch);
-2. Use a new code style;
-3. Build the frameworks for pythorch;
-4. Write ReadMe
+#### 2021-12-04
+1. Add a demo for mnist;

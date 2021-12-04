@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-import torch
 import torch.nn.functional as F
-import pandas as pd
-import numpy as np
-import os
-import rasterio
 
 import JackFramework as jf
 import UserModelImplementation.user_define as user_def
@@ -24,30 +19,31 @@ class MNISTDataloader(jf.UserTemplate.DataHandlerTemplate):
         self.__train_dataset = None
         self.__val_dataset = None
         self.__imgs_num = 0
-        self.__chips_num = 0
         self.__start_time = 0
 
     def get_train_dataset(self, path: str, is_training: bool = True) -> object:
         args = self.__args
         # return dataset
-        self.__train_dataset = torchvision.datasets.MNIST('MNIST', train=True, download=True,
-                                                          transform=torchvision.transforms.Compose([
-                                                              torchvision.transforms.ToTensor(),
-                                                              torchvision.transforms.Normalize(
-                                                                  (0.1307,), (0.3081,))
-                                                          ]))
+        self.__train_dataset = torchvision.datasets.MNIST(
+            'MNIST', train=True, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(
+                    (user_def.MIST_MEAN,), (user_def.MIST_VAR,))
+            ]))
         return self.__train_dataset
 
     def get_val_dataset(self, path: str) -> object:
         # return dataset
         args = self.__args
         # return dataset
-        self.__val_dataset = torchvision.datasets.MNIST('MNIST', train=False, download=True,
-                                                        transform=torchvision.transforms.Compose([
-                                                            torchvision.transforms.ToTensor(),
-                                                            torchvision.transforms.Normalize(
-                                                                (0.1307,), (0.3081,))
-                                                        ]))
+        self.__val_dataset = torchvision.datasets.MNIST(
+            'MNIST', train=False, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(
+                    (user_def.MIST_MEAN,), (user_def.MIST_VAR,))
+            ]))
         return self.__val_dataset
 
     def split_data(self, batch_data: tuple, is_training: bool) -> list:
@@ -76,6 +72,7 @@ class MNISTDataloader(jf.UserTemplate.DataHandlerTemplate):
                     img_id: int, model_id: int) -> None:
         assert self.__train_dataset is not None
         args = self.__args
+        pass
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:

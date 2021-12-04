@@ -4,15 +4,9 @@ import argparse
 
 import UserModelImplementation.user_define as user_def
 
-# model
-from UserModelImplementation.Models.Debug.inference import Debug
-from UserModelImplementation.Models.PSMNet.inference import PsmNet
-from UserModelImplementation.Models.GwcNet.inference import GwcNet
-from UserModelImplementation.Models.DPFNN.inference import DPFNN
-
 # dataloader
-from UserModelImplementation.Dataloaders.stereo_dataloader import StereoDataloader
-from UserModelImplementation.Dataloaders.mnist_dataloader import MNISTDataloader
+from UserModelImplementation import Models
+from UserModelImplementation import Dataloaders
 
 
 class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
@@ -22,44 +16,11 @@ class UserInterface(jf.UserTemplate.NetWorkInferenceTemplate):
         super().__init__()
 
     def inference(self, args: object) -> object:
-        name = args.modelName
-        for case in jf.Switch(name):
-            if case('PsmNet'):
-                jf.log.info("Enter the PsmNet model")
-                model = PsmNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('GwcNet'):
-                jf.log.info("Enter the GwcNet model")
-                model = GwcNet(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('Debug'):
-                jf.log.warning("Enter the debug model!!!")
-                model = Debug(args)
-                dataloader = StereoDataloader(args)
-                break
-            if case('DPFNN'):
-                jf.log.warning("Enter the DPFNN model!")
-                model = DPFNN(args)
-                dataloader = MNISTDataloader(args)
-                break
-            if case():
-                model = None
-                dataloader = None
-                jf.log.error("The model's name is error!!!")
-
+        dataloader = Dataloaders.dataloaders_zoo(args, args.dataset)
+        model = Models.models_zoo(args, args.modelName)
         return model, dataloader
 
     def user_parser(self, parser: object) -> object:
-        parser.add_argument('--startDisp', type=int,
-                            default=user_def.START_DISP,
-                            help='start disparity')
-        parser.add_argument('--dispNum', default=user_def.DISP_NUM,
-                            help='disparity number')
-        parser.add_argument('--lr_scheduler', type=UserInterface.__str2bool,
-                            default=user_def.LR_SCHEDULER,
-                            help='use or not use lr scheduler')
         return parser
 
     @staticmethod
