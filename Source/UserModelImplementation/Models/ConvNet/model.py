@@ -1,4 +1,4 @@
-# In[1] 导入所需工具包
+# -*- coding: utf-8 -*-
 import torch
 import torch.nn as nn
 import torchvision
