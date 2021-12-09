@@ -72,7 +72,6 @@ class MNISTDataloader(jf.UserTemplate.DataHandlerTemplate):
                     img_id: int, model_id: int) -> None:
         assert self.__train_dataset is not None
         args = self.__args
-        pass
 
     def show_intermediate_result(self, epoch: int,
                                  loss: list, acc: list) -> str:
