@@ -7,3 +7,4 @@ Result*/
 sftp-config*.json
 *.pyc
 STTStereo.sublime-workspace
+*.log
