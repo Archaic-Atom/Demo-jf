@@ -11,9 +11,17 @@ from math import floor, ceil
 def conv(in_channels: int, out_channels: int, kernel_size: int=3,
          stride: int=1, padding: int=1, bias: bool=False,
          bn: bool=True, act: bool=True):
-    layers = []
-    layers.append(nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
-                            stride=stride, padding=padding, bias=bias))
+    layers = [
+        nn.Conv2d(
+            in_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            bias=bias,
+        )
+    ]
+
     if bn:
         layers.append(nn.BatchNorm2d(out_channels))
 
@@ -35,9 +43,7 @@ class ConvNet(nn.Module):
         self.fc = nn.Linear(128, num_classes)
 
     def make_layer(self, in_channels: int, out_channels: int, layers_num: int) -> object:
-        layers = []
-        layers.append(conv(in_channels, out_channels, stride=2))
-
+        layers = [conv(in_channels, out_channels, stride=2)]
         for _ in range(layers_num):
             layers.append(conv(out_channels, out_channels, stride=2))
 
